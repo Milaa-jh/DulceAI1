@@ -1,0 +1,462 @@
+/* DulceAI - Estilos Personalizados */
+
+/* Variables CSS para la paleta pastel */
+:root {
+    --pink-primary: #ec4899;
+    --pink-light: #fce7f3;
+    --pink-dark: #be185d;
+    --blue-primary: #3b82f6;
+    --blue-light: #dbeafe;
+    --blue-dark: #1e40af;
+    --cream: #fefce8;
+    --white: #ffffff;
+    --gray-light: #f8fafc;
+    --gray-medium: #64748b;
+    --gray-dark: #1e293b;
+}
+
+/* Estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--gray-dark);
+    overflow-x: hidden;
+}
+
+/* Animaciones de entrada para elementos */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.slide-up {
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.slide-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scale-in {
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.scale-in.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Estilos para navegación */
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 50%;
+    background-color: var(--pink-primary);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Estilos para botones */
+.explore-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.explore-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.explore-btn:hover::before {
+    left: 100%;
+}
+
+/* Estilos para tarjetas de productos */
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, var(--pink-light), var(--blue-light));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.product-card:hover::before {
+    opacity: 0.1;
+}
+
+.product-image {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.add-to-cart {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.add-to-cart::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
+    color: white;
+    font-weight: bold;
+}
+
+.add-to-cart.clicked::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.add-to-cart.clicked {
+    background-color: #10b981;
+}
+
+/* Estilos para el chatbot */
+#chatbot-bubble {
+    transition: all 0.3s ease;
+}
+
+#chatbot-icon {
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(236, 72, 153, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+    }
+}
+
+#chatbot-window {
+    transform-origin: bottom right;
+    backdrop-filter: blur(10px);
+}
+
+.chat-header {
+    background: linear-gradient(135deg, var(--pink-primary), var(--blue-primary));
+    position: relative;
+}
+
+.chat-header::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--blue-primary);
+}
+
+.chat-body {
+    background: linear-gradient(to bottom, #f8fafc, #ffffff);
+}
+
+/* Estilos para mensajes del chat */
+.chat-message {
+    margin-bottom: 1rem;
+    animation: slideInMessage 0.3s ease-out;
+}
+
+@keyframes slideInMessage {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message.user {
+    text-align: right;
+}
+
+.chat-message.user .message-content {
+    background: linear-gradient(135deg, var(--pink-primary), var(--pink-dark));
+    color: white;
+    margin-left: auto;
+}
+
+.chat-message.bot .message-content {
+    background: var(--gray-light);
+    color: var(--gray-dark);
+}
+
+.message-content {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+/* Estilos para formulario de contacto */
+#contact-form input,
+#contact-form textarea {
+    transition: all 0.3s ease;
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.1);
+}
+
+/* Estilos para scroll suave */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Estilos para elementos con ScrollTrigger */
+.scroll-trigger {
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.scroll-trigger.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Estilos para el menú móvil */
+#mobile-menu {
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-link {
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+    background-color: var(--pink-light);
+    transform: translateX(5px);
+}
+
+/* Estilos para loading states */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Estilos para efectos de hover en imágenes */
+.hero-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+}
+
+.hero-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(59, 130, 246, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.hero-image-container:hover::before {
+    opacity: 1;
+}
+
+/* Estilos para el footer */
+footer {
+    background: linear-gradient(135deg, var(--gray-dark), #0f172a);
+}
+
+footer a {
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    #chatbot-window {
+        width: 90vw;
+        right: -10vw;
+    }
+}
+
+/* Estilos para animaciones GSAP personalizadas */
+.gsap-fade-in {
+    opacity: 0;
+    y: 30;
+}
+
+.gsap-slide-up {
+    opacity: 0;
+    y: 50;
+}
+
+.gsap-scale-in {
+    opacity: 0;
+    scale: 0.8;
+}
+
+.gsap-slide-left {
+    opacity: 0;
+    x: -50;
+}
+
+.gsap-slide-right {
+    opacity: 0;
+    x: 50;
+}
+
+/* Estilos para efectos de partículas (opcional) */
+.particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--pink-primary);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 6s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Estilos para notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--pink-primary);
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left-color: #10b981;
+}
+
+.notification.error {
+    border-left-color: #ef4444;
+}
+
+
+

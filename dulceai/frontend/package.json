@@ -1,0 +1,45 @@
+{
+  "name": "dulceai-frontend",
+  "version": "1.0.0",
+  "description": "Frontend para DulceAI - E-commerce de pastelería con IA",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "build": "echo 'Build process would go here'",
+    "start": "python -m http.server 3000",
+    "tailwind:build": "tailwindcss -i ./styles.css -o ./dist/styles.css --watch",
+    "tailwind:prod": "tailwindcss -i ./styles.css -o ./dist/styles.css --minify"
+  },
+  "keywords": [
+    "e-commerce",
+    "pastelería",
+    "IA",
+    "GSAP",
+    "Tailwind",
+    "JavaScript"
+  ],
+  "author": "DulceAI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.3.6",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
+  },
+  "dependencies": {
+    "gsap": "^3.12.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
+
+
+
