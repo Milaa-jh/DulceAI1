@@ -9,12 +9,23 @@ from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
 import os
+import time
 from datetime import datetime
 import logging
 
 # Configurar logging PRIMERO
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Importar sistema de monitoreo
+try:
+    from src.monitoring.metrics import get_metrics_collector
+    from src.monitoring.logger import get_logger
+    from src.monitoring.security import SecurityValidator, get_rate_limiter
+    MONITORING_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Sistema de monitoreo no disponible: {e}")
+    MONITORING_AVAILABLE = False
 
 # Importar sistema de IA
 try:
@@ -205,10 +216,49 @@ async def get_products_by_category(category: str):
 async def chat_with_ai(message: ChatMessage):
     """
     Endpoint para chat con IA usando RAG completo
-    Integra: LangChain + Ollama + ChromaDB + LangSmith
+    Integra: LangChain + Ollama + ChromaDB + LangSmith + Observabilidad
     
     IMPORTANTE: Devuelve 503 si la IA no está disponible o no está inicializada
     """
+    # Inicializar componentes de monitoreo
+    trace_id = None
+    start_time = time.time()
+    status = "error"
+    response_text = ""
+    
+    if MONITORING_AVAILABLE:
+        metrics = get_metrics_collector()
+        mon_logger = get_logger()
+        security = SecurityValidator()
+        rate_limiter = get_rate_limiter()
+        
+        # Generar trace_id
+        trace_id = mon_logger.generate_trace_id()
+        
+        # Validar rate limit
+        user_id = message.user_id or "anonymous"
+        allowed, rate_msg = rate_limiter.check_rate_limit(user_id)
+        if not allowed:
+            mon_logger.log_security_check(trace_id, "rate_limit", "blocked", rate_msg)
+            raise HTTPException(status_code=429, detail=rate_msg)
+        
+        mon_logger.log_security_check(trace_id, "rate_limit", "passed")
+        
+        # Validar input contra prompt injection
+        valid, injection_msg = security.validate_input(message.message)
+        if not valid:
+            mon_logger.log_security_check(trace_id, "prompt_injection", "blocked", injection_msg)
+            raise HTTPException(status_code=400, detail=f"Input rechazado: {injection_msg}")
+        
+        mon_logger.log_security_check(trace_id, "prompt_injection", "passed")
+        
+        # Sanitizar PII antes de loggear
+        sanitized_query = security.sanitize_pii(message.message)
+        
+        # Iniciar registro de request
+        metrics.start_request(trace_id, sanitized_query, user_id)
+        mon_logger.log_request_start(trace_id, sanitized_query, user_id)
+    
     try:
         if not AI_AVAILABLE:
             raise HTTPException(
@@ -230,6 +280,9 @@ async def chat_with_ai(message: ChatMessage):
         except RuntimeError as e:
             # Si la IA no está disponible, devolver 503
             logger.error(f"❌ IA no disponible: {str(e)}")
+            if MONITORING_AVAILABLE:
+                mon_logger.log_error(trace_id, "agent", "RuntimeError", str(e))
+                metrics.track_error("agent", "RuntimeError", str(e))
             raise HTTPException(
                 status_code=503,
                 detail=f"Sistema de IA no disponible: {str(e)}"
@@ -238,6 +291,9 @@ async def chat_with_ai(message: ChatMessage):
         # Verificar si hay errores en la respuesta
         if response_text.startswith("❌ Error del sistema:"):
             error_detail = response_text.replace("❌ Error del sistema: ", "")
+            if MONITORING_AVAILABLE:
+                mon_logger.log_error(trace_id, "agent", "SystemError", error_detail)
+                metrics.track_error("agent", "SystemError", error_detail)
             raise HTTPException(
                 status_code=500,
                 detail=f"Error del sistema de IA: {error_detail}"
@@ -258,13 +314,27 @@ async def chat_with_ai(message: ChatMessage):
             "user_id": message.user_id
         })
         
+        status = "success"
         logger.info(f"✅ Mensaje procesado exitosamente: {message.message[:50]}...")
+        
+        # Finalizar registro de request
+        if MONITORING_AVAILABLE:
+            latency = time.time() - start_time
+            metrics.end_request(response_text, status)
+            mon_logger.log_request_end(trace_id, response_text, latency, status)
+        
         return response
         
     except HTTPException:
+        if MONITORING_AVAILABLE:
+            metrics.end_request(response_text or "", "error")
         raise
     except Exception as e:
         logger.error(f"❌ Error procesando mensaje de chat: {str(e)}")
+        if MONITORING_AVAILABLE:
+            mon_logger.log_error(trace_id, "api", "Exception", str(e))
+            metrics.track_error("api", "Exception", str(e))
+            metrics.end_request("", "error")
         raise HTTPException(status_code=503, detail=f"Sistema de IA no disponible: {str(e)}")
 
 @app.get("/api/ai/status")
